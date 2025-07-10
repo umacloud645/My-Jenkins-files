@@ -7,7 +7,7 @@ stage (ContDownload)
 { 
 steps 
 { 
-groovy of git repo code
+groovy of git code
 } 
 } 
 } 
