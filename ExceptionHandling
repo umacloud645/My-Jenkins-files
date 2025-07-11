@@ -1,0 +1,64 @@
+pipeline {
+    agent { node { label 'built-in' } }
+
+    stages {
+        stage('ContinuousDownload') {
+            steps {
+                script {
+                    try {
+                        git url: 'https://github.com/umacloud645/Docker-compose-files.git'
+                    }  
+                        catch (e) {
+                        // Replace this with actual email sending
+                        emailext(
+                            subject: "Git Checkout Failed",
+                            body: "Git checkout failed with error: ${e}",
+                            to: "gitadmin@example.com"
+                        )
+                    }
+                }
+            }
+        }
+
+        stage('ContinuousBuild') {
+            steps {
+                script {
+                    try {
+                        sh '''
+                            mvn package
+                        '''
+                    } catch (e) {
+                        emailext(
+                            subject: "Build Failed",
+                            body: "Build failed with error: ${e}",
+                            to: "developer@example.com"
+                        )
+                    }
+                }
+            }
+        }
+
+        stage('ContinuousDeployment') {
+            steps {
+                script {
+                    try {
+                        deploy adapters: [
+                            tomcat9(
+                                alternativeDeploymentContext: '',
+                                credentialsId: 'a7fd78d2-5ce0-4481-8ee9-4160f145a0f0',
+                                path: '',
+                                url: 'http://172.31.0.112:8080'
+                            )
+                        ], contextPath: 'testapp', war: '**/*.war'
+                    } catch (e) {
+                        emailext(
+                            subject: "Deployment Failed",
+                            body: "Deployment failed with error: ${e}",
+                            to: "deployadmin@example.com"
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
