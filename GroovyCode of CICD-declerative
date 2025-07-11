@@ -1,0 +1,47 @@
+pipeline 
+{ 
+Agent { node {label 'built-in'} } 
+stages 
+{  
+ stage ('ContinuousDownload') 
+   {  
+      steps
+       { 
+         git 'https://github.com/Docker-Compose-files.git'
+       } 
+   }
+ stage ('ContinuousBuild') 
+  { 
+   steps 
+    { 
+     sh 'mvn package' 
+    }
+  }
+ stage ('ContinuousDeployment') 
+   { 
+     steps   
+      { 
+        sh 'scp /var/lib/Jenkins/workspace/Declerativejob1(pipelinemae)/webapp/target/web.war   
+ubuntu@172.36.12.6(private ip of QA):/var/lib/tomcat9/webapps/test.war---> give ur contextpath name
+      } 
+   }
+ stage ('ContinuousTesting') 
+    { 
+     steps 
+     { 
+      git 'https://github.com/intelliqit/functionaltesting.git'
+      sh 'java -jer /var/lib/Jenkins/workspace/Declerativejob1/testing.jar' 
+     } 
+  } 
+     stage('ContinuousDelivery') 
+      { 
+     steps 
+      { 
+        
+        sh 'scp /var/lib/Jenkins/workspace/Declerativejob1(pipelinemae)/webapp/target/web.war   
+ubuntu@172.36.12.6(private ip of prod):/var/lib/tomcat9/webapps/test.war---> give ur contextpath name
+
+      } 
+    } 
+  }
+}
